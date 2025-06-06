@@ -1,0 +1,28 @@
+{
+  "node": {
+    "40601210de5ff1eeb0fe7052ebcb1134be271d4e4d": {
+      "workers": {
+        "app/admin/add-guest/page": {
+          "moduleId": "(action-browser)/./node_modules/.pnpm/next@15.2.4_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Ftchawo-brandon%2FMariageClaude%2Fwedding%2Ffrontend%2Fapp%2Factions%2FaddGuestToListAction.ts%22%2C%5B%7B%22id%22%3A%2260601210de5ff1eeb0fe7052ebcb1134be271d4e4d%22%2C%22exportedName%22%3A%22addGuestToListAction%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/admin/add-guest/page": "action-browser"
+      }
+    },
+    "60601210de5ff1eeb0fe7052ebcb1134be271d4e4d": {
+      "workers": {
+        "app/admin/add-guest/page": {
+          "moduleId": "(action-browser)/./node_modules/.pnpm/next@15.2.4_react-dom@19.1.0_react@19.1.0__react@19.1.0/node_modules/next/dist/build/webpack/loaders/next-flight-action-entry-loader.js?actions=%5B%5B%22%2Fhome%2Ftchawo-brandon%2FMariageClaude%2Fwedding%2Ffrontend%2Fapp%2Factions%2FaddGuestToListAction.ts%22%2C%5B%7B%22id%22%3A%2260601210de5ff1eeb0fe7052ebcb1134be271d4e4d%22%2C%22exportedName%22%3A%22addGuestToListAction%22%7D%5D%5D%5D&__client_imported__=true!",
+          "async": false
+        }
+      },
+      "layer": {
+        "app/admin/add-guest/page": "action-browser"
+      }
+    }
+  },
+  "edge": {},
+  "encryptionKey": "6DU1aNw4b4LLkRn2YE0k2bjpHMbsdk34aA91njE/g7E="
+}
