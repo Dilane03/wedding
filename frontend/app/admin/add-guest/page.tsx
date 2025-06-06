@@ -87,29 +87,44 @@ export default function AddGuestPage() {
     return `${word}${numbers}`
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
 
-    if (!validateForm()) {
+  if (!validateForm()) {
+    return
+  }
+
+  setIsSubmitting(true)
+
+  try {
+    const res = await fetch("/api/guests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(formData),
+    })
+
+    if (!res.ok) {
+      const errorData = await res.json()
+      setErrors({ general: errorData.error || "Erreur lors de l'ajout de l'invité." })
+      setIsSubmitting(false)
       return
     }
 
-    setIsSubmitting(true)
+    setIsSuccess(true)
+    setIsSubmitting(false)
 
-    // Simulate API call
     setTimeout(() => {
-      // In a real app, you would save to database here
-      console.log("Données invité:", formData)
-
-      setIsSuccess(true)
-      setIsSubmitting(false)
-
-      // Redirect after success
-      setTimeout(() => {
-        router.push("/admin")
-      }, 2000)
-    }, 1500)
+      router.push("/admin")
+    }, 2000)
+  } catch (err) {
+    console.error("Erreur API:", err)
+    setErrors({ general: "Erreur de connexion au serveur." })
+    setIsSubmitting(false)
   }
+}
+
 
   const updateFormData = (field: keyof GuestFormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }))

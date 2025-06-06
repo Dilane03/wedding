@@ -1,11 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { sql } from "@/lib/database"
+import bcrypt from "bcrypt"
 
+// GET: Fetch all guests and their ceremony responses
 export async function GET(request: NextRequest) {
   try {
     const guests = await sql`
       SELECT 
-        g.*,
+        g.id, g.name, g.email, g.phone, g.address, g.city, g.country,
+        g.guest_type, g.partner_name, g.number_of_guests,
+        g.dietary_restrictions, g.special_requests, g.created_at,
         COALESCE(
           json_agg(
             json_build_object(
@@ -21,7 +25,6 @@ export async function GET(request: NextRequest) {
       GROUP BY g.id
       ORDER BY g.created_at DESC
     `
-
     return NextResponse.json({ guests })
   } catch (error) {
     console.error("Error fetching guests:", error)
@@ -29,6 +32,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// POST: Create a new guest
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
@@ -47,21 +51,19 @@ export async function POST(request: NextRequest) {
       password,
     } = body
 
-    // Validate required fields
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Name, email, and password are required" }, { status: 400 })
     }
 
-    // Check if email already exists
     const existingGuest = await sql`
       SELECT id FROM guests WHERE email = ${email}
     `
-
     if (existingGuest.length > 0) {
       return NextResponse.json({ error: "A guest with this email already exists" }, { status: 409 })
     }
 
-    // Insert new guest
+    const hashedPassword = await bcrypt.hash(password, 10)
+
     const newGuest = await sql`
       INSERT INTO guests (
         name, email, phone, address, city, country, guest_type,
@@ -70,12 +72,11 @@ export async function POST(request: NextRequest) {
       ) VALUES (
         ${name}, ${email}, ${phone}, ${address}, ${city}, ${country},
         ${guest_type}, ${partner_name}, ${number_of_guests},
-        ${dietary_restrictions}, ${special_requests}, ${password}
+        ${dietary_restrictions}, ${special_requests}, ${hashedPassword}
       )
-      RETURNING *
+      RETURNING id, name, email, guest_type
     `
 
-    // Initialize ceremony responses as pending
     await sql`
       INSERT INTO ceremony_responses (guest_id, ceremony_type, response)
       VALUES 
@@ -93,5 +94,39 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error creating guest:", error)
     return NextResponse.json({ error: "Failed to create guest" }, { status: 500 })
+  }
+}
+
+// POST: Login endpoint for guests
+export async function PUT(request: NextRequest) {
+  try {
+    const { email, password } = await request.json()
+
+    if (!email || !password) {
+      return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
+    }
+
+    const result = await sql`
+      SELECT * FROM guests WHERE email = ${email}
+    `
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 })
+    }
+
+    const guest = result[0]
+    const isValid = await bcrypt.compare(password, guest.password)
+
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 })
+    }
+
+    // Remove password before sending
+    delete guest.password
+
+    return NextResponse.json({ message: "Login successful", guest })
+  } catch (error) {
+    console.error("Login error:", error)
+    return NextResponse.json({ error: "Failed to login" }, { status: 500 })
   }
 }
